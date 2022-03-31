@@ -2,29 +2,62 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function seed () {
+
   const createdCustomer = await prisma.customer.create({
     data: {
-      name: 'Alice',
-      contact: {
-        create: {
-          phone: '123',
-          email: '123@123.com'
-        }
+      name: 'Alice'
+    }
+  });
+
+  const contact = await prisma.contact.create({
+    data: {
+      phone: '123',
+      email: '123@123.com',
+      customer: {
+        connect: { id: createdCustomer.id }
       }
     }
-
-  });
+  })
 
   console.log('Customer created', createdCustomer);
 
   // Add your code here
+
+  const createdScreen = await prisma.screen.create({
+    data: {
+      number: 13
+    }
+  })
+
+  console.log('Screen created', createdScreen);
+
   const createdMovie = await prisma.movie.create({
     data: {
       title: 'badboys',
       runtimeMins: 120,
       Screening: {
         create: {
-          startsAt: new Date()
+          startsAt: new Date(),
+          screen: {
+            connect: { id: createdScreen.id }
+          }
+
+        }
+      }
+    }
+  })
+
+  const createdScreening = await prisma.screening.create({
+    data: {
+      startsAt: new Date(),
+      movie: {
+        connect: {
+          id: createdMovie.id
+        }
+      },
+      screen: {
+        connect: {
+          id: createdScreen.id
         }
       }
     }
@@ -32,19 +65,18 @@ async function seed () {
 
   console.log('Movie created', createdMovie);
 
-  const createdScreen = await prisma.screen.create({
+  const createdTicket = await prisma.ticket.create({
     data: {
-      number: 13,
-      Screening: {
-        create: {
-          startsAt: new Date()
-        }
+      customer: {
+        connect: { id: createdCustomer.id }
+      },
+      screening: {
+        connect: { id: createdScreening.id }
       }
     }
   })
 
-  console.log('Screen created', createdScreen);
-
+  console.log('Movie ticket', createdTicket);
 
 
 
